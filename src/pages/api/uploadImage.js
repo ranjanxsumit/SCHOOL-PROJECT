@@ -1,8 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import formidable from 'formidable';
-import fs from 'fs';
-import path from 'path';
-import { query } from '../../../lib/db'; // adjust if your db.js path is different
+
+import { query } from '../../lib/db'; // adjust if your db.js path is different
 
 export const config = {
   api: {
