@@ -8,6 +8,7 @@ export default function AddSchool() {
   const [imageStatus, setImageStatus] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploadedUrl, setUploadedUrl] = useState(null); // ✅ New state for Cloudinary image
 
   const imageWatch = watch('image');
   const handleImagePreview = () => {
@@ -20,11 +21,11 @@ export default function AddSchool() {
     setSubmitting(true);
     setMessage('');
     setImageStatus('');
+    setUploadedUrl(null);
 
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
       if (key === 'image' && data[key] && data[key].length > 0) {
-        // IMPORTANT: send the actual file, not FileList
         formData.append(key, data[key][0]);
       } else {
         formData.append(key, data[key]);
@@ -32,12 +33,13 @@ export default function AddSchool() {
     });
 
     try {
-      const res = await fetch('/api/addSchool', { method: 'POST', body: formData });
+      const res = await fetch('/api/uploadImage', { method: 'POST', body: formData }); // ✅ Updated URL
       const result = await res.json();
 
       if (res.ok) {
         setMessage(result.message || 'School added successfully.');
-        setImageStatus(result.imageStatus || '');
+        setImageStatus(`Image uploaded to: ${result.imageUrl}`); // ✅ Show Cloudinary URL
+        setUploadedUrl(result.imageUrl); // ✅ Store image URL for rendering
         reset();
         setPreviewUrl(null);
       } else {
@@ -172,8 +174,17 @@ export default function AddSchool() {
                 <span className="text-gray-400 text-sm">Choose an image to preview</span>
               )}
             </div>
+
+            {/* ✅ Show uploaded Cloudinary image */}
+            {uploadedUrl && (
+              <div className="mt-6">
+                <h4 className="text-sm font-medium text-gray-700">Uploaded Image:</h4>
+                <img src={uploadedUrl} alt="Uploaded" className="mt-2 rounded-lg shadow-md" />
+              </div>
+            )}
+
             <p className="text-xs text-gray-500 mt-3">
-              Tip: Images are stored in <code>/public/schoolImages</code> and served from <code>/schoolImages/filename</code>.
+              Tip: Images are now hosted on Cloudinary and rendered from their secure URLs.
             </p>
           </div>
         </div>
